@@ -1,0 +1,8 @@
+# Step by step of what I did
+# The paired-end RNAseq sequence data are provided in the directory
+# get paired-end RNAseq sequence data:
+
+cp -r /localdisk/home/data/BPSM/ICA1/fastq ~/ICA1
+
+#recursive or -r means just copy the contents inside the directory as well. 
+
