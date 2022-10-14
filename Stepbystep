@@ -6,3 +6,8 @@ cp -r /localdisk/home/data/BPSM/ICA1/fastq ~/ICA1
 
 #recursive or -r means just copy the contents inside the directory as well. 
 
+#fastqc files
+fastqc *.fastq.gz -o ~/ICA1/fastq_files
+
+#import/cp Tcongo genome
+cp -r /localdisk/data/BPSM/ICA1/Tcongo_genome ~/ICA1
