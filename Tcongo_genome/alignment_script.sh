@@ -1,16 +1,35 @@
-#!/bin/bash
+# #!/bin/bash
 
 INDEXGENOME="Tcongoindex"
 THREAD=64
 
-for READPAIR1 in ./*_1.fq
+INDEX_GENOME="Index_Congo"
+BOWTIE_BASE_ARGS="--no-unal -x $INDEX_GENOME"
+SAMTOOLS_VIEW_ARGS="view"
+SAMTOOLS_SORT_ARGS="sort"
+
+get_bowtie_2_lines()
+{
+	for readpair1 in *_1.fq 
+    do
+		readpair2=${readpair1/_1/_2}
+		congo="$(cut -d '_' -f 1 <<< $readpair1)" # <<< in standard input
+		bowtie_args="$BOWTIE_BASE_ARGS -1 $readpair1 -2 $readpair2 -S $congo.sam"
+		echo $bowtie_args
+    done
+}
+	
+echo "$(get_bowtie_2_lines)" | parallel bowtie2 #takes arguments for bowtie2 and pipes it into bowtie2 line by line in parallel
+
+#Conversion to bam and sorting and indexing
+for congo in *.sam
+  do 
+  samtools view -S -b $congo > ${congo/%sam/bam}
+  done
+
+for congo in *.bam
   do
-    echo $READPAIR1
-    echo ${READPAIR1/_1/_2}
-    bowtie2 --no-unal -p $THREAD -x $INDEXGENOME -1 $READPAIR1 -2 ${READPAIR1/_1/_2} -S samfile.sam 
-    for samfile.sam in ./
-      samtools view -S -b samfile.sam > bamfile.bam
+  samtools sort $congo -o ${congo/%bam/sorted.bam}
+  done
 
-  done 
-    
-
+#Bedtools
