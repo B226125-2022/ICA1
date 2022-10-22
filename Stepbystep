@@ -48,3 +48,7 @@ bowtie2-build TriTrypDB-46_TcongolenseIL3000_2019_Genome.fasta Tcongoindex
 #-S is the output alignment in sam format
 
 bowtie2 --no-unal -p 2 -x Tcongoindex -1 Tco-5053_1.fq -2 Tco-5053_2.fq -S testoutput.sam
+
+source alignment_script.sh
+
+samtools view testoutput.bam | head
