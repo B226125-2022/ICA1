@@ -1,9 +1,7 @@
-# #!/bin/bash
-
-INDEXGENOME="Tcongoindex"
-THREAD=64
+#!/bin/bash
 
 INDEX_GENOME="Index_Congo"
+THREAD=64
 BOWTIE_BASE_ARGS="--no-unal -x $INDEX_GENOME"
 SAMTOOLS_VIEW_ARGS="view"
 SAMTOOLS_SORT_ARGS="sort"
@@ -19,7 +17,7 @@ get_bowtie_2_lines()
     done
 }
 	
-echo "$(get_bowtie_2_lines)" | parallel bowtie2 #takes arguments for bowtie2 and pipes it into bowtie2 line by line in parallel
+echo "$(get_bowtie_2_lines)" | parallel bowtie2  #takes arguments for bowtie2 and pipes it into bowtie2 line by line in parallel
 
 #Conversion to bam and sorting and indexing
 for congo in *.sam
@@ -32,4 +30,10 @@ for congo in *.bam
   samtools sort $congo -o ${congo/%bam/sorted.bam}
   done
 
+for congo in *.sorted.bam
+  do
+  samtools index $congo
+  done
+
 #Bedtools
+bedtools multicov -bams *.sorted.bam -bed TriTrypDB-46_TcongolenseIL3000_2019.bed

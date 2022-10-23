@@ -7,48 +7,31 @@ cp -r /localdisk/home/data/BPSM/ICA1/fastq ~/ICA1
 #recursive or -r means just copy the contents inside the directory as well. 
 
 #fastqc files
-fastqc *.fastq.gz -o ~/ICA1/fastq_files
-
-#import/cp Tcongo genome
-cp -r /localdisk/data/BPSM/ICA1/Tcongo_genome ~/ICA1
+fastqc *.fastq.gz -o ~/ICA1/fastq_files #assess content on any file containing fastq.gz and output into directory fastq_files
 
 #unzip post_fastqc_zip_files
 unzip \*.zip -d ~/ICA1/fastq_files/unzipped_fastqc_zipfiles
 
-# bowtie2 [options]* -x <bt2-idx> {-1 <m1> -2 <m2> | -U <r> | --interleaved <i> | -b <bam>} [-S <sam>]
-# <bt2-idx>  Index filename prefix (minus trailing .X.bt2).
-#             NOTE: Bowtie 1 and Bowtie 2 indexes are not compatible.
-#  <m1>       Files with #1 mates, paired with files in <m2>.
-#             Could be gzip'ed (extension: .gz) or bzip2'ed (extension: .bz2).
-#  <m2>       Files with #2 mates, paired with files in <m1>.
-#             Could be gzip'ed (extension: .gz) or bzip2'ed (extension: .bz2).
-#  <r>        Files with unpaired reads.
-#             Could be gzip'ed (extension: .gz) or bzip2'ed (extension: .bz2).
-#  <i>        Files with interleaved paired-end FASTQ/FASTA reads
-#             Could be gzip'ed (extension: .gz) or bzip2'ed (extension: .bz2).
-#  <bam>      Files are unaligned BAM sorted by read name.
-#  <sam>      File for SAM output (default: stdout)
-#
-#  <m1>, <m2>, <r> can be comma-separated lists (no whitespace) and can be
-#  specified many times.  E.g. '-U file1.fq,file2.fq -U file3.fq'.
+cd fastq_files/unzipped_fastqc_zipfiles
+
+#import/cp Tcongo genome
+cp -r /localdisk/data/BPSM/ICA1/Tcongo_genome ~/ICA1
+cd ~/ICA1/Tcongo_genome
 
 #Index Genome
-bowtie2-build TriTrypDB-46_TcongolenseIL3000_2019_Genome.fasta Tcongoindex
-
-#from old project
-#bwa mem genome.fa reads_1.fq reads_2.fq | samtools sort -O BAM > reads.bam
+bowtie2-build TriTrypDB-46_TcongolenseIL3000_2019_Genome.fasta Index_Congo
 
 #Read pair alignment
 #bowtie2 --no-unal -p n -x index_name -1 reads_1.fastq -2 reads_2.fastq -S output.sam
-#--no-unal is an optional argument, meaning reads that do not align to the reference genome will not be written to sam output
-#-p is the number (n) of processors/threads used
-#-x is the genome index
-#-1 is the file(s) containing mate 1 reads
-#-2 is the file(s) containing mate 2 reads
-#-S is the output alignment in sam format
+bowtie2 --no-unal -p 2 -x Index_congo -1 Tco-5053_1.fq -2 Tco-5053_2.fq -S testoutput.sam
 
-bowtie2 --no-unal -p 2 -x Tcongoindex -1 Tco-5053_1.fq -2 Tco-5053_2.fq -S testoutput.sam
+./alignment_script.sh
 
-source alignment_script.sh
-
+#viewing bam files
 samtools view testoutput.bam | head
+
+#Getting bed file
+cp -r /localdisk/data/BPSM/ICA1/TriTrypDB-46_TcongolenseIL3000_2019.bed ~/ICA1/Tcongo_genome
+
+#bedtools
+bedtools multicov -bams *.sorted.bam -bed TriTrypDB-46_TcongolenseIL3000_2019.bed
