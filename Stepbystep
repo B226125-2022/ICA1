@@ -34,4 +34,4 @@ samtools view testoutput.bam | head
 cp -r /localdisk/data/BPSM/ICA1/TriTrypDB-46_TcongolenseIL3000_2019.bed ~/ICA1/Tcongo_genome
 
 #bedtools
-bedtools multicov -bams *.sorted.bam -bed TriTrypDB-46_TcongolenseIL3000_2019.bed
+bedtools multicov -bams *.sorted.bam -bed TriTrypDB-46_TcongolenseIL3000_2019.bed > read_count.txt
