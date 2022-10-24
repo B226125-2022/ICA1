@@ -1,4 +1,4 @@
-WORK_DIR="$HOME/ICA1"
+WORK_DIR="$HOME/ICA1/ICA2"
 FASTQ_DIR="$WORK_DIR/fastq"
 GUNZIP_FASTQ_DIR="$WORK_DIR/fastq"
 UNZIPPED_FASTQ_DIR="$FASTQ_DIR/unzipped_fastqc_zipfiles"
@@ -7,10 +7,10 @@ TCONGO_SOURCE="/localdisk/data/BPSM/ICA1/Tcongo_genome"
 TCONGO_BED_SOURCE="/localdisk/data/BPSM/ICA1/TriTrypDB-46_TcongolenseIL3000_2019.bed"
 TCONGO_DIR="$WORK_DIR/Tcongo_genome"
 
-# if [ -d "$WORK_DIR" ]; then
-#     echo "Wiping $WORK_DIR"
-#     rm -r "$WORK_DIR"
-# fi
+# # if [ -d "$WORK_DIR" ]; then
+# #     echo "Wiping $WORK_DIR"
+# #     rm -r "$WORK_DIR"
+# # fi
 
 if [ ! -d "$WORK_DIR" ]; then
     echo "Creating $WORK_DIR"
@@ -48,7 +48,7 @@ rm $FASTQ_DIR/*.zip
 echo "Copying $TCONGO_SOURCE to $WORK_DIR"
 cp -r $TCONGO_SOURCE $WORK_DIR
 
-# echo "Unzipping every .fasta.gz file in $TCONGO_DIR"
+echo "Unzipping every .fasta.gz file in $TCONGO_DIR"
 gunzip $TCONGO_DIR/*.fasta.gz
 
 echo "Running bowtie2-build on the Tcongo file"
@@ -57,20 +57,24 @@ bowtie2-build "$TCONGO_DIR/TriTrypDB-46_TcongolenseIL3000_2019_Genome.fasta" "$T
 echo "Copying everything from $TCONGO_DIR into $FASTQ_DIR"
 cp -v $TCONGO_DIR/* $FASTQ_DIR
 
-#run alignment script
+# #run alignment script
 echo "Running the alignment script's cleanup routine"
 ./alignment_script.sh cleanup $FASTQ_DIR
 echo "Running the alignment script on $FASTQ_DIR"
 ./alignment_script.sh process $FASTQ_DIR
 
-#copy bedfile
+# #copy bedfile
 echo "Copying $TCONGO_BED_SOURCE to $FASTQ_DIR"
 cp -r $TCONGO_BED_SOURCE $FASTQ_DIR
 
-#run bedtools
+# #run bedtools
 echo "Running bedtools on *.sorted.bam in $FASTQ_DIR"
 cd $FASTQ_DIR
 bedtools multicov -bams *.sorted.bam -bed TriTrypDB-46_TcongolenseIL3000_2019.bed > read_count.txt
+
+#just in case scripts are not in $WORK_DIR
+echo "Copying scripts to $WORK_DIR"
+cp -r *.sh $WORK_DIR
 
 cd $WORK_DIR
 echo "Grouping!"
